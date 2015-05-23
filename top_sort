@@ -1,0 +1,356 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define BUFFER_SIZE 40
+
+typedef int ElementType;
+typedef struct Vertex* ptr_to_Vertex;
+typedef struct Graph* ptr_to_Graph;
+typedef struct Queue* ptrQueue;
+typedef struct Vertex{
+	
+	ElementType Edge;
+	ElementType In_Degree;// Define In-degree of vertex V.
+	int index;
+
+}Vertex;
+
+typedef struct Graph{
+
+	Vertex* List_of_Vertex;
+	Vertex**  Map_Of_Vertex;
+	ElementType Num_of_Vertex;// All numbers of v's.
+
+}Graph;
+
+typedef struct Queue{
+
+	int Capacity;
+	int Q_Size;
+	int front;
+	int rear;
+	Vertex* vertex;
+
+}Queue;
+
+ptrQueue CreateQueue(ElementType Size);
+Graph Initailze_Graph(ElementType number_of_vertex);
+Graph Set_Graph(int row, int column, Graph G);
+Vertex Find_NewVertex_of_IndegreeZero(Graph G); //
+void Topological_Sort(Graph G);// not possible if graph has a cycle.
+void EnQueue(Vertex element, ptrQueue Q);
+Vertex DeQueue(ptrQueue Q);
+int IsEmpty(ptrQueue Q);
+int IsFull(Queue Q);
+int Succ(int Value, ptrQueue Q);// to implement Circular Queue
+
+//------------------------------------------------------------------------
+//						Static Variable For Counting	
+//------------------------------------------------------------------------
+
+static int counter = 0;
+
+void main(int argc, char** argv)
+{
+	FILE* input = fopen(argv[1],"r");
+	Graph new_Graph;
+	char Buffer[BUFFER_SIZE];
+	char str[10][10];
+	char str2[10][10];
+	char* token;
+	int j;
+	int line_FeedCounter = 0, Counter_for_vertex=0, i=0;
+	
+	while (1)
+	{
+		if (line_FeedCounter == 0)
+		{
+			fgets(Buffer, 40, input);	
+			token=strtok(Buffer, " ");
+			while (token!=NULL)
+			{
+				strcpy(str[i++], token);
+				token = strtok(NULL, " ");
+				Counter_for_vertex++;
+			}
+
+			new_Graph = Initailze_Graph(Counter_for_vertex);
+			for (i = 0; i < Counter_for_vertex; i++)
+			{
+				for (j = 0; j < Counter_for_vertex; j++)
+				{
+					printf("%2d", new_Graph.Map_Of_Vertex[i][j].Edge);
+				}
+				printf("\n");
+			}
+			printf("------------------------------------------ \n");
+			++line_FeedCounter;
+		}
+
+		if (line_FeedCounter == 1)
+		{
+			fgets(Buffer, 40, input);
+			token = strtok(Buffer," -");
+			
+			while (token!=NULL)
+			{
+				i = 0;				
+				strcpy(str2[i], token);
+				token = strtok(NULL, " -"); 
+				strcpy(str2[i+1], token);
+
+				Set_Graph(atoi(str2[i]), atoi(str2[i+1]), new_Graph);
+				token = strtok(NULL, " -");
+
+				for (i = 0; i < Counter_for_vertex; i++)
+				{
+					for (j = 0; j < Counter_for_vertex; j++)
+					{
+						printf("%2d", new_Graph.Map_Of_Vertex[i][j].Edge);
+					}
+					printf("\n");
+				}
+				printf("------------------------------------------ \n");
+
+			}
+			line_FeedCounter += 1;
+		}
+		else
+		{
+			for (i = 0; i < Counter_for_vertex; i++)
+			{
+
+				printf("%2d", new_Graph.List_of_Vertex[i].index);
+			}
+			printf("\n");
+			for (i = 0; i < Counter_for_vertex; i++)
+			{
+				
+				printf("%2d", new_Graph.List_of_Vertex[i].In_Degree);
+			}
+			printf("\n");
+			break;
+		}
+	}
+	
+	Topological_Sort(new_Graph);
+	fclose(input);
+
+	//;
+}
+
+Graph Initailze_Graph(ElementType NumberOfVertex)
+{
+	int i, j;
+	Graph G;
+
+	G.Map_Of_Vertex = (Vertex**)malloc(sizeof(Vertex*)*NumberOfVertex);
+
+	if (G.Map_Of_Vertex == NULL)
+	{
+		printf("ERROR: OUT OF SPACE!!\n");
+	}
+
+	else
+	{
+		for (i = 0; i < NumberOfVertex; i++)
+		{
+			G.Map_Of_Vertex[i] = (Vertex*)malloc(sizeof(Vertex));
+			if (G.Map_Of_Vertex[i] == NULL)
+			{
+				printf("ERROR: OUT OF SPACE!!\n");
+			}
+		}
+	}
+
+	G.List_of_Vertex = (Vertex*)malloc(sizeof(Vertex)*NumberOfVertex);
+	
+	if (G.List_of_Vertex == NULL)
+	{
+		printf("ERROROUT OF SPACE!\n");
+	}
+
+	else
+	{
+		G.Num_of_Vertex = NumberOfVertex;
+
+		for (i = 0; i < NumberOfVertex; i++)
+		{		
+				G.List_of_Vertex[i].index = i;
+				G.List_of_Vertex[i].In_Degree = 0;
+			
+				for (j = 0; j < NumberOfVertex; j++)
+			{
+					G.Map_Of_Vertex[i][j].Edge = 0;
+			}
+		}
+	}
+	return G;
+}
+Graph Set_Graph(int row, int column, Graph G)
+{
+
+	int i, j;
+	int all_edge=0;
+	
+	G.Map_Of_Vertex[row-1][column-1].Edge = 1; // Set the relation btw V_row -> V_column ex> 1->2 
+	
+	for (i = 0; i < G.Num_of_Vertex; i++)
+	{	
+		all_edge = 0;// reset for all-Degree
+		for (j = 0; j < G.Num_of_Vertex; j++)
+		{
+			all_edge += G.Map_Of_Vertex[j][i].Edge; // For calcaulating the in-degree of Vertex v.
+			G.List_of_Vertex[i].In_Degree = all_edge;
+			
+		}
+	}
+	 
+	return G;
+}
+
+void Topological_Sort(Graph G)
+{
+	ptrQueue myQueue;
+	Vertex V, W;
+	int Counter=0, i=0,j,k;
+	int* TopNum;
+	int Size_for_Queue;
+
+	Size_for_Queue =G.Num_of_Vertex;
+	
+	TopNum = (int*)malloc(sizeof(int)*G.Num_of_Vertex);
+	
+	myQueue = CreateQueue(Size_for_Queue);
+	
+	for (i = 0; i < G.Num_of_Vertex; i++)
+	{
+		if (G.List_of_Vertex[i].In_Degree == 0)
+		{
+			EnQueue(G.List_of_Vertex[i], myQueue);
+		}
+
+		else { continue; }
+	
+	}
+
+	while (!IsEmpty(myQueue))
+	{ 
+		V = DeQueue(myQueue);
+		
+		TopNum[Counter++] = V.index;
+		
+		printf("%2d\n", TopNum[i]);
+
+		for (j = 0; j < G.Num_of_Vertex; j++)
+		{
+			if (G.List_of_Vertex[j].In_Degree == 0)
+			{
+				G.List_of_Vertex[j].In_Degree -= 1;
+				
+				continue;
+			}
+	
+			/*for (j = 0; j < G.Num_of_Vertex; j++)
+			{
+				if (G.Map_Of_Vertex[j][i].Edge == 1)
+				{
+					//G.Map_Of_Vertex[j][i].Edge -= 1;		
+					
+				}
+			}*/
+
+			for (k = i; k < G.Num_of_Vertex; k++)
+			{
+			if (G.List_of_Vertex[k].In_Degree == 0)
+				{ 
+					EnQueue(G.List_of_Vertex[k], myQueue);
+				}
+			}
+			
+		}
+		
+	}
+	
+	for (i = 0; i < Counter; i++)
+	{
+		printf("%2d", TopNum[i]);
+	}
+
+} // after
+
+//---------------------------------------------------------------------------------------
+//							FUNCTION FOR SIMPLE CURCULAR QUEUE
+//---------------------------------------------------------------------------------------
+
+ptrQueue CreateQueue(ElementType Size)
+{
+	ptrQueue Q = (ptrQueue)malloc(sizeof(ptrQueue));
+
+	if (Q == NULL) { printf("Error: OUT OF SPACE ! \n"); }
+
+
+	Q->vertex = (Vertex*)malloc(sizeof(Vertex)*Size);
+
+	if (Q->vertex == NULL) { printf("Error: OUT OF SPACE ! \n"); }
+
+	else
+	{
+		Q->Q_Size = 0;
+		Q->front = 0;
+		Q->rear = 1;
+		Q->Capacity = Size;
+	}
+
+	return Q;
+}
+
+void EnQueue(Vertex V, ptrQueue Q)
+{
+	if (Q->Q_Size == Q->Capacity)
+	{
+		printf("QUEUE IS FULL");
+	}
+	else
+	{
+		Q->rear = Succ(Q->rear, Q);
+		Q->vertex[Q->rear] = V;
+		Q->Q_Size += 1;
+	}
+
+		
+}
+
+Vertex DeQueue(ptrQueue Q)
+{
+	Vertex temp;
+	
+	if (Q->Q_Size == 0)
+	{
+		printf("Queue is Empty!");
+
+	}
+	else
+	{	
+		temp = Q->vertex[Q->front];
+		Q->front = Succ(Q->front , Q);
+		Q->Q_Size -= 1;
+	}
+
+	return temp;
+}
+int Succ(int Value, ptrQueue Q)
+{
+	if (++Value == Q->Capacity)
+	{
+		Value = 0;
+	}
+
+	return Value;
+}
+
+int IsEmpty(ptrQueue Q)
+{
+	return Q->Q_Size == 0;
+}
