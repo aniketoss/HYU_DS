@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	FILE* input = fopen(argv[1], "r");
 	BloomFilters* my_Bloom_Filter=NULL;
 	char Buff[MAX_BUFF_SIZE];
-	char* str;
+	char* str=NULL;
 	int b, k, m, i;
 	int counter=0;
 	char* n;
@@ -56,6 +56,8 @@ int main(int argc, char** argv)
 	b = (int)(1.44*(log2(1 /0.01)));
 	k = (int)(0.693*b);
 	m = atoi(n)*b;
+
+	str = (char*)malloc(sizeof(char)* 100);
 
 	printf("b=%2d k=%2d m=%2d\n", b, k, m);
 
@@ -66,9 +68,10 @@ int main(int argc, char** argv)
 	
 		//str = fgets(Buff, 100, input);
 		
-		fscanf(input, "%[^\n]s", str );
 
-		printf("%s", str); 
+		fscanf(input, "%[^ ]s", str);
+
+		printf("Counter::%d String::%s\n", counter ,str);
 
 		insert(my_Bloom_Filter, str);
 		
@@ -86,18 +89,18 @@ int main(int argc, char** argv)
 			break;
 		}
 
-		str = fgets(Buff, 100, input);
-		printf("%s", str);
+		fscanf(input, "%s", str);
+		printf("%s\n", str);
 
 		result=lookup(my_Bloom_Filter, str);
 
 		if (result == 1)
 		{
-			printf("Result::true");
+			printf("Result::true\n");
 		}
 		else
 		{
-			printf("Result::false");
+			printf("Result::false\n");
 		}
 	}		printf("\n");
 
@@ -126,7 +129,7 @@ int lookup(BloomFilters* B, char *Key)
 	int i;
 	int Mapping, Comparator=1, result;
 
-	printf("%s", Key);
+	printf("%s\n", Key);
 	for (i = 0; i < B->NUM_HASHFUNC; i++)
 	{
 		Mapping = Hash(B, (*B->funcs[i])(Key));
