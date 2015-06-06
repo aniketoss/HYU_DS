@@ -8,11 +8,11 @@
 #define TRUE 1
 #define FALSE 0
 #define SENTINAL_NODE -1
+//----------------------------------------------------------------------------------------
 //
-//
-//
+//----------------------------------------------------------------------------------------
 typedef struct List_Node* List; // ptr with respect to Singly Linked List
-typedef struct List_Node* Position;
+typedef struct List_Node* Position; 
 typedef struct Graph_adjList* Graph;
 typedef struct Table_Entry* Table;
 typedef int ElementType;
@@ -50,9 +50,6 @@ typedef struct HeapStruct{
 Graph Initialize_Graph(int num_Vertex);
 void Set_Graph(int vtx_u, int vtx_v, int weight, Graph G);
 void Insert_Key(ElementType element, ElementType weight, List L);
-//----------------------------------------------------------------------------------------
-//
-//----------------------------------------------------------------------------------------
 void Print_adjacencyList(Graph G);
 void Set_Table(Vertex Start, Graph G, Table T);
 void Print_Path(Vertex V, Table T);
@@ -72,10 +69,10 @@ int main(int argc, char** argv)
 	FILE* input = fopen(argv[1], "r");
 	Graph my_Graph;
 	Table my_Table;
-	char* context, *token;
+	char *token;
 	char* str_buff = (char*)malloc(sizeof(char)*MAX_BUFF_SIZE);
 	char select;
-	int counter = 0, Start = 0, i;
+	int counter = 0, Start = 0, End=0,i;
 	int data[3];
 	//----------------------------------------------------------------------------------------
 	//        DATA INPUT FROM INPUT.TXT
@@ -97,11 +94,11 @@ int main(int argc, char** argv)
 			counter++;
 		}
 	}
-	printf("-----------------------Dijkstra's Algoritms-----------------------\n");
+	printf("-----------------------Dijkstra's Algorithms-----------------------\n");
 	printf("Number of Vertices:%2d\n", counter);// print num_of_vertex
 	printf("\n");
 	//----------------------------------------------------------------------------------------
-	//   CREATE NEW GRAPH
+	//		 CREATE NEW GRAPH
 	//----------------------------------------------------------------------------------------
 	my_Graph = Initialize_Graph(counter);
 	my_Table = (Table)malloc(sizeof(Table_Entry)* my_Graph->Number_of_Vertices + 1);
@@ -140,10 +137,22 @@ int main(int argc, char** argv)
 		printf("Start Source: ");
 		scanf("%d", &Start);
 		printf("\n");
+		printf("Destination Vertex:");
+		scanf(" %d", &End);
+		printf("\n");
 		Set_Table(Start, my_Graph, my_Table);
 		Dijkstra(my_Table, my_Graph, Start);
+		if (my_Table[End].Distance != Infinity)
+		{
+			Print_Path(End, my_Table);
+		}
+		else
+		{
+			printf("Nowhere to go %2d", End);
+		}
+		printf("\n");
 		printf("----------------------------Print Table--------------------------\n");
-		printf("V   Distance_v\tKnow\tPath\n");
+		printf("V   Distance_v\tKnow\tPred[V]\n");
 		for (i = 1; i <= counter; i++)
 		{
 			printf("%d\t%d\t%d\t%d\t", i, my_Table[i].Distance, my_Table[i].Know, my_Table[i].Path);
@@ -291,7 +300,6 @@ void Set_Table(Vertex Start, Graph G, Table T)
 		T[i].Distance = Infinity;
 		T[i].Path = Not_A_vertex;
 		T[i].Index = i;
-		T[i].Header = G->Linked_List[i];
 	}
 
 	T[Start].Distance = 0;
@@ -324,24 +332,23 @@ void Dijkstra(Table T, Graph G, Vertex Start)
 		{
 			continue;
 		}
-		printf("u=%2d\n", U);
-		Print_Path(U, T);
-		printf("\n");
+		//printf("u=%2d\n", U);
+		//printf("\n");
 		P = G->Linked_List[U]->next;
 		T[U].Know = TRUE;
 		while (P != NULL)
 		{
 			V = P->Key;
-			printf("v=%2d\n", V);
+			//printf("v=%2d\n", V);
 			if (T[V].Know != TRUE)
 			{
-				printf("Distance of T[%d]:%d\n", U, T[U].Distance);
-				printf("Distance of T[%d]:%d\n", V, T[V].Distance);
+				//printf("Distance of T[%d]:%d\n", U, T[U].Distance);
+				//printf("Distance of T[%d]:%d\n", V, T[V].Distance);
 				if (T[U].Distance + P->Weight < T[V].Distance)
 				{
 					T[V].Distance = T[U].Distance + P->Weight;
 					T[V].Path = U;
-					printf("Distance of T[%d]:%d\n", V, T[V].Distance);
+					//printf("Distance of T[%d]:%d\n", V, T[V].Distance);
 
 					Insert(Min_Heap, T[V]);
 
