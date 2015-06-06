@@ -28,7 +28,6 @@ typedef struct List_Node
 	List next;
 }List_Node;
 typedef struct Table_Entry{
-	List Header;
 	int Index;
 	int Know;
 	int Distance;
@@ -54,6 +53,8 @@ void Print_adjacencyList(Graph G);
 void Set_Table(Vertex Start, Graph G, Table T);
 void Print_Path(Vertex V, Table T);
 void Dijkstra(Table T, Graph G, Vertex Start);
+void Destroy_Graph(Graph G, Table T);
+
 //----------------------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------------------
@@ -173,8 +174,9 @@ int main(int argc, char** argv)
 	//      FREE DYNAMIC ALLOCACTIONS & CLOSE FILE STREAM
 	//----------------------------------------------------------------------------------------
 	free(str_buff);
+	Destroy_Graph(my_Graph, my_Table);
 	fclose(input);
-	return 0;;
+	return 0;
 }
 //----------------------------------------------------------------------------------------
 //        FUNCTION DEFINITION BELOW
@@ -193,7 +195,7 @@ Graph Initialize_Graph(int num_Vertex)
 		return NULL;
 	}
 
-	G->Linked_List = (List*)malloc(sizeof(List)*num_Vertex + 1);
+	G->Linked_List = (List*)malloc(sizeof(List)*(num_Vertex + 1));
 
 	if (G->Linked_List == NULL)
 	{
@@ -203,7 +205,7 @@ Graph Initialize_Graph(int num_Vertex)
 	G->Number_of_Vertices = num_Vertex;
 	for (i = 1; i <= num_Vertex; i++)
 	{
-		G->Linked_List[i] = (List)malloc(sizeof(List_Node)*num_Vertex + 1);
+		G->Linked_List[i] = (List)malloc(sizeof(List_Node)*(num_Vertex + 1));
 	}
 
 	for (i = 1; i <= num_Vertex; i++)
@@ -343,6 +345,32 @@ void Print_Path(Vertex V, Table T)
 		Print_Path(T[V].Path, T);
 		printf(" to ");
 	} printf("%d", V);
+}
+
+void Destroy_Graph(Graph G, Table T)
+{
+	Position P;
+	Position Temp;
+	List L;
+	int i;
+
+	for (i = 1; i <= G->Number_of_Vertices; i++)
+	{
+		L = G->Linked_List[i];
+		P = L->next;	
+		while (P != NULL)
+		{
+			Temp = P->next;
+			free(P);
+			P = Temp;
+		}
+		free(G->Linked_List[i]);
+	}
+
+	free(G);
+	free(T);
+	
+
 }
 
 //----------------------------------------------------------------------------------------
