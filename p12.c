@@ -96,14 +96,13 @@ int main(int argc, char** argv)
 		}
 	}
 	printf("-----------------------Dijkstra's Algorithms-----------------------\n");
-	printf("Number of Vertices:%2d\n", counter);// print num_of_vertex
+	printf("Number of Vertices:%2d", counter);// print num_of_vertex
 	printf("\n");
 	//----------------------------------------------------------------------------------------
-	//		 CREATE NEW GRAPH
+	//		 CREATE NEW GRAPH & TABLE
 	//----------------------------------------------------------------------------------------
 	my_Graph = Initialize_Graph(counter);
-	my_Table = (Table)malloc(sizeof(Table_Entry)* my_Graph->Number_of_Vertices + 1);
-	printf("\n");
+	my_Table = (Table)malloc(sizeof(Table_Entry)* (my_Graph->Number_of_Vertices + 1));
 	//----------------------------------------------------------------------------------------
 	//        DATA INPUT FROM INPUT.TXT & SET UP THE GRAPH
 	//----------------------------------------------------------------------------------------
@@ -143,6 +142,7 @@ int main(int argc, char** argv)
 		printf("\n");
 		Set_Table(Start, my_Graph, my_Table);
 		Dijkstra(my_Table, my_Graph, Start);
+		
 		if (my_Table[End].Distance != Infinity)
 		{
 			printf("The Shortest Path from %d to %d: ", Start, End);
@@ -211,9 +211,7 @@ Graph Initialize_Graph(int num_Vertex)
 	for (i = 1; i <= num_Vertex; i++)
 	{
 		G->Linked_List[i]->next = NULL;
-		printf("NEXT POINTER of List[%d]: %p\n", i, G->Linked_List[i]->next);
 	}
-
 	for (i = 1; i <= num_Vertex; i++)
 	{
 		G->Linked_List[i]->Key = i;
@@ -335,7 +333,8 @@ void Dijkstra(Table T, Graph G, Vertex Start)
 		}
 	} printf("\n");
 
-
+	free(Min_Heap->Elements);
+	free(Min_Heap);
 }
 
 void Print_Path(Vertex V, Table T)
@@ -364,13 +363,10 @@ void Destroy_Graph(Graph G, Table T)
 			free(P);
 			P = Temp;
 		}
-		free(G->Linked_List[i]);
-	}
-
+		free(G->Linked_List[i]); // G->List_List[i] = 1D_malloc
+	}	
+	free(G->Linked_List);
 	free(G);
-	free(T);
-	
-
 }
 
 //----------------------------------------------------------------------------------------
