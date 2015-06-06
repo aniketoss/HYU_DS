@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 	}
 	printf("-----------------------------------------------------------------\n");
 
-	Print_adjacencyList(my_Graph); // Set_Table(Vertex Start, Graph G, Table T)
+	Print_adjacencyList(my_Graph); // print all Relations in Graph
 	while (1)
 	{
 		printf("Start Source: ");
@@ -144,6 +144,7 @@ int main(int argc, char** argv)
 		Dijkstra(my_Table, my_Graph, Start);
 		if (my_Table[End].Distance != Infinity)
 		{
+			printf("The Shortest Path from %d to %d: ", Start, End);
 			Print_Path(End, my_Table);
 		}
 		else
@@ -247,7 +248,7 @@ void Print_adjacencyList(Graph G)
 	int i;
 	Position P;
 
-	printf("-------------------------Graph Diagram-------------------------\n");
+	printf("--------------------Graph using Adjacency List--------------------\n");
 	printf("Source\tAddress current\t\tNext v  Weigth\tNext Address\n");
 	for (i = 1; i <= G->Number_of_Vertices; i++)
 	{
@@ -423,8 +424,8 @@ ElementType DeleteMin(PriorityQueue H, Table T)
 	}
 
 	H->Elements[i] = Last_data;
-	return Min_Data.Index;
 
+	return Min_Data.Index;
 }
 
 int IsFull(PriorityQueue H)
