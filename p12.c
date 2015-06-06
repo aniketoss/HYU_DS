@@ -219,34 +219,7 @@ Graph Initialize_Graph(int num_Vertex)
 }
 void Set_Graph(int vtx_u, int vtx_v, int weight, Graph G)
 {
-	switch (vtx_u)
-	{
-	case 1:
-		Insert_Key(vtx_v, weight, G->Linked_List[1]);
-		break;
-	case 2:
-		Insert_Key(vtx_v, weight, G->Linked_List[2]);
-		break;
-	case 3:
-		Insert_Key(vtx_v, weight, G->Linked_List[3]);
-		break;
-	case 4:
-		Insert_Key(vtx_v, weight, G->Linked_List[4]);
-		break;
-	case 5:
-		Insert_Key(vtx_v, weight, G->Linked_List[5]);
-		break;
-	case 6:
-		Insert_Key(vtx_v, weight, G->Linked_List[6]);
-		break;
-	case 7:
-		Insert_Key(vtx_v, weight, G->Linked_List[7]);
-		break;
-	default:
-		break;
-
-	}
-
+		Insert_Key(vtx_v, weight, G->Linked_List[vtx_u]);
 }
 void Insert_Key(ElementType element, ElementType weight, List L)
 {
