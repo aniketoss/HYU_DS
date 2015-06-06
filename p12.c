@@ -6,7 +6,7 @@
 #define Infinity 999
 #define Not_A_vertex -1
 #define TRUE 1
-#define FALSE 0 
+#define FALSE 0
 #define SENTINAL_NODE -1
 //
 //
@@ -45,7 +45,7 @@ typedef struct HeapStruct{
 	Table Elements;
 }HeapStruct;
 //----------------------------------------------------------------------------------------
-//         
+//        
 //----------------------------------------------------------------------------------------
 Graph Initialize_Graph(int num_Vertex);
 void Set_Graph(int vtx_u, int vtx_v, int weight, Graph G);
@@ -75,18 +75,18 @@ int main(int argc, char** argv)
 	char* context, *token;
 	char* str_buff = (char*)malloc(sizeof(char)*MAX_BUFF_SIZE);
 	char select;
-	int counter = 0, Start = 0;
+	int counter = 0, Start = 0, i;
 	int data[3];
 	//----------------------------------------------------------------------------------------
 	//        DATA INPUT FROM INPUT.TXT
 	//----------------------------------------------------------------------------------------
 	fgets(str_buff, MAX_BUFF_SIZE, input);
-	token = strtok_s(str_buff, " ", &context);
+	token = strtok(str_buff, " ");
 	//printf("token:%s\n", token);
 	counter++;
 	while (token != NULL)
 	{
-		token = strtok_s(NULL, " \n", &context);
+		token = strtok(NULL, " \n");
 		if (token == NULL)
 		{
 			break;
@@ -97,6 +97,7 @@ int main(int argc, char** argv)
 			counter++;
 		}
 	}
+	printf("-----------------------Dijkstra's Algoritms-----------------------\n");
 	printf("Number of Vertices:%2d\n", counter);// print num_of_vertex
 	printf("\n");
 	//----------------------------------------------------------------------------------------
@@ -110,20 +111,20 @@ int main(int argc, char** argv)
 	//----------------------------------------------------------------------------------------
 
 	fgets(str_buff, MAX_BUFF_SIZE, input);
-	token = strtok_s(str_buff, " -", &context);
+	token = strtok(str_buff, " -");
 	printf("-------------------------INPUT DATA LIST-------------------------\n");
 	printf(" vertex_u\t vertex_v\t  weight\n");
 	while (token != NULL)
 	{
 		data[0] = atoi(token);
 		printf("Data[0]=%2d\t", data[0]);
-		token = strtok_s(NULL, " -", &context);
+		token = strtok(NULL, " -");
 		data[1] = atoi(token);
 		printf("Data[1]=%2d\t", data[1]);
-		token = strtok_s(NULL, " -", &context);
+		token = strtok(NULL, " -");
 		data[2] = atoi(token);
 		printf("Data[2]=%2d\t", data[2]);
-		token = strtok_s(NULL, " -", &context);
+		token = strtok(NULL, " -");
 		printf("\n");
 
 		//----------------------------------------------------------------------------------------
@@ -141,6 +142,14 @@ int main(int argc, char** argv)
 		printf("\n");
 		Set_Table(Start, my_Graph, my_Table);
 		Dijkstra(my_Table, my_Graph, Start);
+		printf("----------------------------Print Table--------------------------\n");
+		printf("V   Distance_v\tKnow\tPath\n");
+		for (i = 1; i <= counter; i++)
+		{
+			printf("%d\t%d\t%d\t%d\t", i, my_Table[i].Distance, my_Table[i].Know, my_Table[i].Path);
+			printf("\n");
+		}
+		printf("-----------------------------------------------------------------\n");
 		printf("Restart?(Y/N): ");
 		scanf(" %c", &select);
 		printf("\n");
@@ -154,7 +163,7 @@ int main(int argc, char** argv)
 	//      FREE DYNAMIC ALLOCACTIONS & CLOSE FILE STREAM
 	//----------------------------------------------------------------------------------------
 	free(str_buff);
-
+	fclose(input);
 	return 0;;
 }
 //----------------------------------------------------------------------------------------
@@ -190,7 +199,7 @@ Graph Initialize_Graph(int num_Vertex)
 	for (i = 1; i <= num_Vertex; i++)
 	{
 		G->Linked_List[i]->next = NULL;
-		printf("NEXT POINTER of List[%d]: %s\n", i, G->Linked_List[i]->next);
+		printf("NEXT POINTER of List[%d]: %p\n", i, G->Linked_List[i]->next);
 	}
 
 	for (i = 1; i <= num_Vertex; i++)
@@ -230,8 +239,6 @@ void Set_Graph(int vtx_u, int vtx_v, int weight, Graph G)
 	}
 
 }
-
-
 void Insert_Key(ElementType element, ElementType weight, List L)
 {
 	List temp;
@@ -259,14 +266,14 @@ void Print_adjacencyList(Graph G)
 	Position P;
 
 	printf("-------------------------Graph Diagram-------------------------\n");
-	printf("Source\tHeader\t  Address current\t   Next v\tWeigth\tNext Address\n");
+	printf("Source\tAddress current\t\tNext v  Weigth\tNext Address\n");
 	for (i = 1; i <= G->Number_of_Vertices; i++)
 	{
 		P = G->Linked_List[i]->next;
 
 		while (P != NULL)
 		{
-			printf("%4d\t[%d]\t%2d\t\t%2d\t%2d\t%d\n", i, &G->Linked_List[i]->next, P, P->Key, P->Weight, P->next);
+			printf("%4d\t%p\t\t%2d\t%2d\t%p\n", i, P, P->Key, P->Weight, P->next);
 			P = P->next;
 		}
 	}
@@ -294,34 +301,38 @@ void Dijkstra(Table T, Graph G, Vertex Start)
 	Vertex U, V;
 	PriorityQueue Min_Heap;
 	Position P;
-	int i;
+	//int i;
 	Min_Heap = CreateHeap(G->Number_of_Vertices);
+	
+	/*
 	P = G->Linked_List[Start]->next;
 	T[Start].Know = TRUE;
 	while (P != NULL)
 	{
-		T[P->Key].Distance = P->Weight;
-		printf("Distance of T[%d].Distance=%d\n", P->Key, T[P->Key].Distance);
-		T[P->Key].Path = Start;
-		Insert(Min_Heap, T[P->Key]);
-		P = P->next;
-	}
+	T[P->Key].Distance = P->Weight;
+	printf("Distance of T[%d].Distance=%d\n", P->Key, T[P->Key].Distance);
+	T[P->Key].Path = Start;
+	Insert(Min_Heap, T[P->Key]);
+	P = P->next;
+	}*/
 
+	Insert(Min_Heap, T[Start]);
 	while (!IsEmpty(Min_Heap))
 	{
 		U = DeleteMin(Min_Heap, T);// ADD EACH VERTEX IN PRIORITY QUEUE
-
-		printf("%2d\n", U);
-
+		if (T[U].Know == TRUE)
+		{
+			continue;
+		}
+		printf("u=%2d\n", U);
+		Print_Path(U, T);
+		printf("\n");
 		P = G->Linked_List[U]->next;
-
 		T[U].Know = TRUE;
-
 		while (P != NULL)
 		{
-
 			V = P->Key;
-			printf("V=%2d\n", V);
+			printf("v=%2d\n", V);
 			if (T[V].Know != TRUE)
 			{
 				printf("Distance of T[%d]:%d\n", U, T[U].Distance);
@@ -331,10 +342,11 @@ void Dijkstra(Table T, Graph G, Vertex Start)
 					T[V].Distance = T[U].Distance + P->Weight;
 					T[V].Path = U;
 					printf("Distance of T[%d]:%d\n", V, T[V].Distance);
+
 					Insert(Min_Heap, T[V]);
+
 				}
 
-				
 			}
 			P = P->next;
 		}
@@ -359,7 +371,6 @@ void Print_Path(Vertex V, Table T)
 PriorityQueue CreateHeap(int HeapSize)
 {
 	PriorityQueue Q;
-	int i;
 	Q = (PriorityQueue)malloc(sizeof(HeapStruct));
 	if (Q == NULL)
 	{
@@ -435,10 +446,7 @@ ElementType DeleteMin(PriorityQueue H, Table T)
 	return Min_Data.Index;
 
 }
-void PrintHeap(PriorityQueue H)
-{
 
-}
 int IsFull(PriorityQueue H)
 {
 	return H->Size == H->Capacity;
@@ -447,4 +455,5 @@ int IsEmpty(PriorityQueue H)
 {
 	return H->Size == 0;
 }
-	
+
+//void PrintHeap(PriorityQueue H)
